@@ -96,10 +96,11 @@ public class BST implements BSTInterface {
     	}
     }
     
-    private final boolean validate(final Node parent, final Node child, final Direction dir) {
+    private final boolean validate(final Node parent, final Node child) {
     	return !parent.marked &&
     			!child.marked &&
-    			parent.get(dir) == child;
+    			((parent.key < child.key && parent.right == child) ||
+    			 (parent.key > child.key && parent.left == child));
     }
 
     public final boolean remove(final int key) {
@@ -118,7 +119,7 @@ public class BST implements BSTInterface {
     		synchronized (pred) {
     			synchronized (curr) {
     				Direction curr_dir = Direction.next(pred.key, curr.key);
-    				if (validate(pred, curr, curr_dir)) {
+    				if (validate(pred, curr)) {
     					final Node left = curr.left;
     					final Node right = curr.right;
     					
@@ -137,7 +138,7 @@ public class BST implements BSTInterface {
     						
     						synchronized (succ_pred) {
     							synchronized (succ) {
-									if (validate(succ_pred, succ, succ_dir) && succ.left == null) {
+									if (validate(succ_pred, succ) && succ.left == null) {
 										if (succ == right) {
 											right.left = left;
 											curr.marked = true;
@@ -167,7 +168,7 @@ public class BST implements BSTInterface {
     							final Node next = (left != null) ? left : right;
 
     							synchronized (next) {
-    								if (validate(curr, next, Direction.next(curr.key, next.key))) {
+    								if (validate(curr, next)) {
     									curr.marked = true;
     									pred.set(curr_dir, next);
     									return true;
