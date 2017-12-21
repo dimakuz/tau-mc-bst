@@ -41,9 +41,13 @@ public class BST implements BSTInterface {
 		public final void set(final Direction dir, final Node node) {
 			switch (dir) {
 			case LEFT:
+				if (node != null && node.key > key)
+					throw new RuntimeException();
 				left = node;
 				break;
 			case RIGHT:
+				if (node != null && node.key < key)
+					throw new RuntimeException();
 				right = node;
 				break;
 			default:
@@ -87,9 +91,21 @@ public class BST implements BSTInterface {
     			if (!curr.marked) {
     				if (curr.key == key)
     					return false;
-    				if (curr.get(Direction.next(curr.key, key)) == null) {
-    					curr.set(Direction.next(curr.key, key), new Node(key));
-    					return true;
+    				Direction dir = Direction.next(curr.key, key);
+    				if (curr.get(dir) == null) {
+    					// Perform extra traversal, in case we're inserting value to a recent successor node.
+    					Node sanity = root;    		
+    					while (sanity.key != key) {
+    		    			Node next = sanity.get(Direction.next(sanity.key, key));
+    		    			if (next == null)
+    		    				break;
+    		    			sanity = next;
+    		    		}
+    					if (sanity == curr) {
+    						Node node = new Node(key);
+        					curr.set(dir, node);
+        					return true;    						
+    					}
     				}
     			}
 			}
@@ -124,39 +140,39 @@ public class BST implements BSTInterface {
     					final Node right = curr.right;
     					
     					if (left != null && right != null) {
-    						Node succ_pred = curr;
-    						Node succ = right;
-    						Direction succ_dir = Direction.RIGHT;
-    						Node next = succ.left;
-    						
-    						while (next != null) {
-    							succ_pred = succ;
-    							succ = next;
-    							succ_dir = Direction.LEFT;
-    							next = next.left;
-    						}
-    						
-    						synchronized (succ_pred) {
-    							synchronized (succ) {
-									if (validate(succ_pred, succ) && succ.left == null) {
-										if (succ == right) {
-											right.left = left;
-											curr.marked = true;
-											pred.set(curr_dir, right);
-											return true;
-										} else {
-											if (true)
-												return false;
-											final Node replacement = new Node(succ.key);
-											replacement.left = left;
-											replacement.right = right;
-											curr.marked = true;
-											pred.set(curr_dir, replacement);
-											succ.marked = true;
-											succ_pred.set(Direction.LEFT, succ.right);
-											return true;
-										}
-									}
+    						synchronized (left) {
+    							synchronized (right) {
+    	    						Node succ_pred = curr;
+    	    						Node succ = right;
+    	    						Node next = succ.left;
+    	    						
+    	    						while (next != null) {
+    	    							succ_pred = succ;
+    	    							succ = next;
+    	    							next = next.left;
+    	    						}
+    	    						
+    	    						synchronized (succ_pred) {
+    	    							synchronized (succ) {
+    										if (validate(succ_pred, succ) && succ.left == null) {
+    											if (succ == right) {
+    												right.left = left;
+    												curr.marked = true;
+    												pred.set(curr_dir, right);
+    												return true;
+    											} else {
+    												final Node replacement = new Node(succ.key);    												
+    												replacement.left = left;
+    												replacement.right = right;
+    												curr.marked = true;
+    												pred.set(curr_dir, replacement);
+    												succ.marked = true;
+    												succ_pred.left = succ.right;
+    												return true;
+    											}
+    										}
+    									}
+    								}
 								}
 							}
     					} else {
