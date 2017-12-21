@@ -8,22 +8,11 @@ public class BST implements BSTInterface {
 		
 		public static DIR next(int current, int target) {
 			if (current < target) {
-				return DIR.LEFT;
-			} else if (current > target){
 				return DIR.RIGHT;
+			} else if (current > target){
+				return DIR.LEFT;
 			} else {
 				throw new RuntimeException();
-			}
-		}
-		
-		public DIR other() {
-			switch (this) {
-			case LEFT:
-				return DIR.RIGHT;
-			case RIGHT:
-				return DIR.LEFT;
-			default:
-				throw new RuntimeException(this.toString());
 			}
 		}
 	}
@@ -87,6 +76,7 @@ public class BST implements BSTInterface {
     			Node next = curr.get(DIR.next(curr.key, key));
     			if (next == null)
     				break;
+    			curr = next;
     		}
     		
     		synchronized (curr) {
