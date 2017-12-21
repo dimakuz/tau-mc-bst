@@ -83,8 +83,10 @@ public class BST implements BSTInterface {
     			if (!curr.marked) {
     				if (curr.key == key)
     					return false;
-    				curr.set(DIR.next(curr.key, key), new Node(key));
-    				return true;
+    				if (curr.get(DIR.next(curr.key, key)) == null) {
+    					curr.set(DIR.next(curr.key, key), new Node(key));
+    					return true;
+    				}
     			}
 			}
     	}
@@ -117,14 +119,19 @@ public class BST implements BSTInterface {
     					final Node right = curr.right;
     					
     					if (left != null && right != null) {
+    						if (true) {
+    							return false;
+    						}
     						Node succ_parent = curr;
-    						Node succ = curr.right;
+    						Node succ = right;
     						DIR succ_dir = DIR.RIGHT;
+    						Node next = succ.left;
     						
-    						while (succ.left != null) {
+    						while (next != null) {
     							succ_parent = succ;
-    							succ = succ.left;
+    							succ = next;
     							succ_dir = DIR.LEFT;
+    							next = next.left;
     						}
     						
     						synchronized (succ_parent) {
@@ -138,13 +145,13 @@ public class BST implements BSTInterface {
 										else
 											replacement.right = succ.right;
 
-										pred.set(curr_dir, replacement);
 										curr.marked = true;
-										
+										pred.set(curr_dir, replacement);
+
+										succ.marked = true;
 										if (succ_parent != curr) {
 											succ_parent.set(succ_dir, succ.right);
 										}
-										succ.marked = true;
 										
 										return true;
 									}
