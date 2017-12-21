@@ -6,13 +6,13 @@ public class BST implements BSTInterface {
 	static enum Direction {
 		LEFT, RIGHT;
 		
-		public static Direction next(int current, int target) {
+		public static Direction next(final int current, final int target) {
 			if (current < target) {
 				return Direction.RIGHT;
 			} else if (current > target){
 				return Direction.LEFT;
 			} else {
-				throw new RuntimeException();
+				throw new RuntimeException(String.format("%d, %d", current, target));
 			}
 		}
 	}
@@ -49,6 +49,10 @@ public class BST implements BSTInterface {
 			default:
 				throw new RuntimeException(dir.toString());
 			}
+		}
+		
+		public String toString() {
+			return String.format("Node(key=%d)", key);
 		}
 	}
 	
