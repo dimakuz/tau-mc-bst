@@ -3,14 +3,14 @@ package algorithms;
 import main.BSTInterface;
 
 public class BST implements BSTInterface {
-	static enum DIR {
+	static enum Direction {
 		LEFT, RIGHT;
 		
-		public static DIR next(int current, int target) {
+		public static Direction next(int current, int target) {
 			if (current < target) {
-				return DIR.RIGHT;
+				return Direction.RIGHT;
 			} else if (current > target){
-				return DIR.LEFT;
+				return Direction.LEFT;
 			} else {
 				throw new RuntimeException();
 			}
@@ -27,7 +27,7 @@ public class BST implements BSTInterface {
 			this.key = key;
 		}
 		
-		public final Node get(final DIR dir) {
+		public final Node get(final Direction dir) {
 			switch (dir) {
 			case LEFT:
 				return left;
@@ -38,7 +38,7 @@ public class BST implements BSTInterface {
 			}
 		}	
 		
-		public final void set(final DIR dir, final Node node) {
+		public final void set(final Direction dir, final Node node) {
 			switch (dir) {
 			case LEFT:
 				left = node;
@@ -62,7 +62,7 @@ public class BST implements BSTInterface {
     	Node curr = root;
     	
     	while (curr != null && curr.key != key) {
-    		curr = curr.get(DIR.next(curr.key, key));
+    		curr = curr.get(Direction.next(curr.key, key));
     	}
     	
     	return curr != null && !curr.marked && curr.key == key;
@@ -73,7 +73,7 @@ public class BST implements BSTInterface {
     		Node curr = root;
     		
     		while (curr.key != key) {
-    			Node next = curr.get(DIR.next(curr.key, key));
+    			Node next = curr.get(Direction.next(curr.key, key));
     			if (next == null)
     				break;
     			curr = next;
@@ -83,8 +83,8 @@ public class BST implements BSTInterface {
     			if (!curr.marked) {
     				if (curr.key == key)
     					return false;
-    				if (curr.get(DIR.next(curr.key, key)) == null) {
-    					curr.set(DIR.next(curr.key, key), new Node(key));
+    				if (curr.get(Direction.next(curr.key, key)) == null) {
+    					curr.set(Direction.next(curr.key, key), new Node(key));
     					return true;
     				}
     			}
@@ -92,7 +92,7 @@ public class BST implements BSTInterface {
     	}
     }
     
-    private final boolean validate(final Node parent, final Node child, final DIR dir) {
+    private final boolean validate(final Node parent, final Node child, final Direction dir) {
     	return !parent.marked &&
     			!child.marked &&
     			parent.get(dir) == child;
@@ -104,7 +104,7 @@ public class BST implements BSTInterface {
     		Node curr = root;
     		
     		while (curr.key != key) {
-    			Node next = curr.get(DIR.next(curr.key, key));
+    			Node next = curr.get(Direction.next(curr.key, key));
     			if (next == null)
     				return false;
     			pred = curr;
@@ -113,7 +113,7 @@ public class BST implements BSTInterface {
     		
     		synchronized (pred) {
     			synchronized (curr) {
-    				DIR curr_dir = DIR.next(pred.key, curr.key);
+    				Direction curr_dir = Direction.next(pred.key, curr.key);
     				if (validate(pred, curr, curr_dir)) {
     					final Node left = curr.left;
     					final Node right = curr.right;
@@ -124,13 +124,13 @@ public class BST implements BSTInterface {
     						}
     						Node succ_parent = curr;
     						Node succ = right;
-    						DIR succ_dir = DIR.RIGHT;
+    						Direction succ_dir = Direction.RIGHT;
     						Node next = succ.left;
     						
     						while (next != null) {
     							succ_parent = succ;
     							succ = next;
-    							succ_dir = DIR.LEFT;
+    							succ_dir = Direction.LEFT;
     							next = next.left;
     						}
     						
@@ -166,7 +166,7 @@ public class BST implements BSTInterface {
     							Node next = (left != null) ? left : right;
 
     							synchronized (next) {
-    								if (validate(curr, next, DIR.next(curr.key, next.key))) {
+    								if (validate(curr, next, Direction.next(curr.key, next.key))) {
     									curr.marked = true;
     									pred.set(curr_dir, next);
     									return true;
