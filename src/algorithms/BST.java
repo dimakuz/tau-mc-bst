@@ -119,9 +119,6 @@ public class BST implements BSTInterface {
     					final Node right = curr.right;
     					
     					if (left != null && right != null) {
-    						if (true) {
-    							return false;
-    						}
     						Node succ_parent = curr;
     						Node succ = right;
     						Direction succ_dir = Direction.RIGHT;
@@ -136,7 +133,7 @@ public class BST implements BSTInterface {
     						
     						synchronized (succ_parent) {
     							synchronized (succ) {
-									if (validate(succ_parent, succ, succ_dir)) {
+									if (validate(succ_parent, succ, succ_dir) && succ.left == null) {
 										Node replacement = new Node(succ.key);
 										replacement.left = curr.left;
 										
