@@ -23,7 +23,7 @@ public class BST implements BSTInterface {
 			case RIGHT:
 				return DIR.LEFT;
 			default:
-				throw new RuntimeException();
+				throw new RuntimeException(this.toString());
 			}
 		}
 	}
@@ -45,18 +45,20 @@ public class BST implements BSTInterface {
 			case RIGHT:
 				return right;
 			default:
-				throw new RuntimeException();
+				throw new RuntimeException(dir.toString());
 			}
 		}	
 		
-		public final Node set(final DIR dir, final Node node) {
+		public final void set(final DIR dir, final Node node) {
 			switch (dir) {
 			case LEFT:
 				left = node;
+				break;
 			case RIGHT:
 				right = node;
+				break;
 			default:
-				throw new RuntimeException();
+				throw new RuntimeException(dir.toString());
 			}
 		}
 	}
