@@ -119,38 +119,38 @@ public class BST implements BSTInterface {
     					final Node right = curr.right;
     					
     					if (left != null && right != null) {
-    						Node succ_parent = curr;
+    						Node succ_pred = curr;
     						Node succ = right;
     						Direction succ_dir = Direction.RIGHT;
     						Node next = succ.left;
     						
     						while (next != null) {
-    							succ_parent = succ;
+    							succ_pred = succ;
     							succ = next;
     							succ_dir = Direction.LEFT;
     							next = next.left;
     						}
     						
-    						synchronized (succ_parent) {
+    						synchronized (succ_pred) {
     							synchronized (succ) {
-									if (validate(succ_parent, succ, succ_dir) && succ.left == null) {
-										Node replacement = new Node(succ.key);
-										replacement.left = curr.left;
-										
-										if (succ_parent != curr)
-											replacement.right = curr.right;
-										else
-											replacement.right = succ.right;
-
-										curr.marked = true;
-										pred.set(curr_dir, replacement);
-
-										succ.marked = true;
-										if (succ_parent != curr) {
-											succ_parent.set(succ_dir, succ.right);
+									if (validate(succ_pred, succ, succ_dir) && succ.left == null) {
+										if (succ == right) {
+											right.left = left;
+											curr.marked = true;
+											pred.set(curr_dir, right);
+											return true;
+										} else {
+											if (true)
+												return false;
+											final Node replacement = new Node(succ.key);
+											replacement.left = left;
+											replacement.right = right;
+											curr.marked = true;
+											pred.set(curr_dir, replacement);
+											succ.marked = true;
+											succ_pred.set(Direction.LEFT, succ.right);
+											return true;
 										}
-										
-										return true;
 									}
 								}
 							}
@@ -160,7 +160,7 @@ public class BST implements BSTInterface {
     							pred.set(curr_dir, null);
     							return true;
     						} else  {
-    							Node next = (left != null) ? left : right;
+    							final Node next = (left != null) ? left : right;
 
     							synchronized (next) {
     								if (validate(curr, next, Direction.next(curr.key, next.key))) {
