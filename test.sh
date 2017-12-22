@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/bin/bash -xe
 ./compile
-for T in 1 2 4 16 32 128
+for K in 256 256000 256000000
 do
-	for K in 256 2560 25600 256000 2560000 25600000 256000000
+	for INS in 10 35 40
 	do
-		for INS in 70 50 40 30 10
+		export DEL=$(( 80 - $INS ))
+		for T in 1 4 32 128
 		do
-			export DEL=$(( 80 - $INS ))
-			./run $T 10 10 -keys$K -ins$INS -del$DEL
+			./run $T 4 10 -keys$K -ins$INS -del$DEL -seed$RANDOM
 		done
 	done
 done
