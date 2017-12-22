@@ -132,57 +132,59 @@ public class BST implements BSTInterface {
 
 			synchronized (pred) {
 				synchronized (curr) {
+					if (!validate(pred, curr))
+						continue;
+						
+					final Node left = curr.left;
+					final Node right = curr.right;
 					Direction curr_dir = Direction.next(pred.key, curr.key);
-					if (validate(pred, curr)) {
-						final Node left = curr.left;
-						final Node right = curr.right;
 
-						if (left != null && right != null) {
-							Node succ_pred = curr;
-							Node succ = right;
-							Node next = succ.left;
+					if (left != null && right != null) {
+						Node succ_pred = curr;
+						Node succ = right;
+						Node next = succ.left;
 
-							while (next != null) {
-								succ_pred = succ;
-								succ = next;
-								next = next.left;
-							}
+						while (next != null) {
+							succ_pred = succ;
+							succ = next;
+							next = next.left;
+						}
 
-							synchronized (succ_pred) {
-								synchronized (succ) {
-									if (validate(succ_pred, succ) && succ.left == null) {
-										if (succ == right) {
-											right.left = left;
-											curr.marked = true;
-											pred.set(curr_dir, right);
-											return true;
-										} else {
-											final Node replacement = new Node(succ.key);
-											replacement.left = left;
-											replacement.right = right;
-											curr.marked = true;
-											pred.set(curr_dir, replacement);
-											succ.marked = true;
-											succ_pred.left = succ.right;
-											return true;
-										}
-									}
+						synchronized (succ_pred) {
+							synchronized (succ) {
+								if (!validate(succ_pred, succ) || succ.left != null)
+									continue;
+								
+								if (succ == right) {
+									right.left = left;
+									curr.marked = true;
+									pred.set(curr_dir, right);
+									return true;
+								} else {
+									final Node replacement = new Node(succ.key);
+									replacement.left = left;
+									replacement.right = right;
+									curr.marked = true;
+									pred.set(curr_dir, replacement);
+									succ.marked = true;
+									succ_pred.left = succ.right;
+									return true;
 								}
 							}
+						}
+					} else {
+						if (left == null && right == null) {
+							curr.marked = true;
+							pred.set(curr_dir, null);
+							return true;
 						} else {
-							if (left == null && right == null) {
-								curr.marked = true;
-								pred.set(curr_dir, null);
-								return true;
-							} else {
-								final Node next = (left != null) ? left : right;
+							final Node next = (left != null) ? left : right;
 
-								synchronized (next) {
-									if (validate(curr, next)) {
-										curr.marked = true;
-										pred.set(curr_dir, next);
-										return true;
-									}
+							synchronized (next) {
+								if (validate(curr, next)) {
+									curr.marked = true;
+									pred.set(curr_dir, next);
+									return true;
 								}
 							}
 						}
