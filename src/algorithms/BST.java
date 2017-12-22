@@ -1,5 +1,7 @@
 package algorithms;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import main.BSTInterface;
 
 public class BST implements BSTInterface {
@@ -56,19 +58,27 @@ public class BST implements BSTInterface {
 	}
 
 	private final Node root;
+	private volatile AtomicInteger version;
 
 	public BST() {
 		root = new Node(Integer.MIN_VALUE);
+		version = new AtomicInteger(0);
 	}
 
 	public final boolean contains(final int key) {
-		Node curr = root;
+		while (true) {
+			int curr_ver = version.get();
+			Node curr = root;
 
-		while (curr != null && curr.key != key) {
-			curr = curr.get(Direction.next(curr.key, key));
+			while (curr != null && curr.key != key) {
+				curr = curr.get(Direction.next(curr.key, key));
+			}
+			
+			if (curr_ver != version.get())
+				continue;
+			
+			return curr != null && !curr.marked && curr.key == key;	
 		}
-
-		return curr != null && !curr.marked && curr.key == key;
 	}
 
 	public final boolean insert(final int key) {
@@ -173,6 +183,7 @@ public class BST implements BSTInterface {
 									replacement.right = right;
 									curr.marked = true;
 									pred.set(curr_dir, replacement);
+									version.incrementAndGet();
 									succ.marked = true;
 									succ_pred.left = succ.right;
 									return true;
