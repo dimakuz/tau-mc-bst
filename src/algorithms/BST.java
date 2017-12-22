@@ -31,7 +31,7 @@ public class BST implements BSTInterface {
 			case LEFT:
 				return left;
 			case RIGHT:
-				return right;				
+				return right;
 			default:
 				throw new RuntimeException(dir.toString());
 			}
@@ -85,14 +85,15 @@ public class BST implements BSTInterface {
 			synchronized (curr) {
 				if (curr.marked)
 					continue;
-				
+
 				if (curr.key == key)
 					return false;
-				
+
 				Direction dir = Direction.next(curr.key, key);
+				// Check no other thread added the child while we waited for the lock
 				if (curr.get(dir) != null)
 					continue;
-				
+
 				// Perform extra traversal, in case we're inserting value to a recent successor
 				// node.
 				Node sanity = root;
@@ -102,6 +103,7 @@ public class BST implements BSTInterface {
 						break;
 					sanity = next;
 				}
+
 				if (sanity == curr) {
 					Node node = new Node(key);
 					curr.set(dir, node);
@@ -134,16 +136,18 @@ public class BST implements BSTInterface {
 				synchronized (curr) {
 					if (!validate(pred, curr))
 						continue;
-						
+
 					final Node left = curr.left;
 					final Node right = curr.right;
 					Direction curr_dir = Direction.next(pred.key, curr.key);
 
 					if (left != null && right != null) {
+						// Both children non-null, replace node with successor
 						Node succ_pred = curr;
 						Node succ = right;
 						Node next = succ.left;
 
+						// Find successor along the left edge of the right subtree
 						while (next != null) {
 							succ_pred = succ;
 							succ = next;
@@ -152,15 +156,18 @@ public class BST implements BSTInterface {
 
 						synchronized (succ_pred) {
 							synchronized (succ) {
+								// Make sure successor was not modifies and is still the successor
 								if (!validate(succ_pred, succ) || succ.left != null)
 									continue;
-								
+
 								if (succ == right) {
+									// Successor is curr.right, attach curr.left subtree and replace curr.
 									right.left = left;
 									curr.marked = true;
 									pred.set(curr_dir, right);
 									return true;
 								} else {
+									// Successor is not curr.right, create a new node, replace curr with it, detach successor.
 									final Node replacement = new Node(succ.key);
 									replacement.left = left;
 									replacement.right = right;
@@ -174,10 +181,12 @@ public class BST implements BSTInterface {
 						}
 					} else {
 						if (left == null && right == null) {
+							// Both null, remove curr
 							curr.marked = true;
 							pred.set(curr_dir, null);
 							return true;
 						} else {
+							// One child is null, replace curr with its non-null child
 							final Node next = (left != null) ? left : right;
 
 							synchronized (next) {
