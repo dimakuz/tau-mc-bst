@@ -133,14 +133,26 @@ public class BST implements BSTInterface {
 		while (true) {
 			Node pred = null;
 			Node curr = root;
+			int curr_ver = version.get();
+			boolean retry = false;
 
 			while (curr.key != key) {
+				
 				Node next = curr.get(Direction.next(curr.key, key));
-				if (next == null)
-					return false;
+				if (next == null) {
+					if (curr_ver == version.get()) {
+						return false;
+					} else {
+						retry = true;
+						break;
+					}
+				}
 				pred = curr;
 				curr = next;
 			}
+			
+			if (retry) 
+				continue;
 
 			synchronized (pred) {
 				synchronized (curr) {
