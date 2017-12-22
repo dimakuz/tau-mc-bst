@@ -83,26 +83,29 @@ public class BST implements BSTInterface {
 			}
 
 			synchronized (curr) {
-				if (!curr.marked) {
-					if (curr.key == key)
-						return false;
-					Direction dir = Direction.next(curr.key, key);
-					if (curr.get(dir) == null) {
-						// Perform extra traversal, in case we're inserting value to a recent successor
-						// node.
-						Node sanity = root;
-						while (sanity.key != key) {
-							Node next = sanity.get(Direction.next(sanity.key, key));
-							if (next == null)
-								break;
-							sanity = next;
-						}
-						if (sanity == curr) {
-							Node node = new Node(key);
-							curr.set(dir, node);
-							return true;
-						}
-					}
+				if (curr.marked)
+					continue;
+				
+				if (curr.key == key)
+					return false;
+				
+				Direction dir = Direction.next(curr.key, key);
+				if (curr.get(dir) != null)
+					continue;
+				
+				// Perform extra traversal, in case we're inserting value to a recent successor
+				// node.
+				Node sanity = root;
+				while (sanity.key != key) {
+					Node next = sanity.get(Direction.next(sanity.key, key));
+					if (next == null)
+						break;
+					sanity = next;
+				}
+				if (sanity == curr) {
+					Node node = new Node(key);
+					curr.set(dir, node);
+					return true;
 				}
 			}
 		}
