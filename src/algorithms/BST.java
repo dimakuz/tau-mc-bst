@@ -7,13 +7,12 @@ public class BST implements BSTInterface {
 		LEFT, RIGHT;
 
 		public static Direction next(final int current, final int target) {
-			if (current < target) {
+			if (current < target)
 				return Direction.RIGHT;
-			} else if (current > target) {
+			else if (current > target)
 				return Direction.LEFT;
-			} else {
+			else
 				throw new RuntimeException(String.format("%d, %d", current, target));
-			}
 		}
 	}
 
@@ -23,7 +22,7 @@ public class BST implements BSTInterface {
 		public volatile Node right;
 		public volatile boolean marked;
 
-		Node(int key) {
+		Node(final int key) {
 			this.key = key;
 		}
 
@@ -32,7 +31,7 @@ public class BST implements BSTInterface {
 			case LEFT:
 				return left;
 			case RIGHT:
-				return right;
+				return right;				
 			default:
 				throw new RuntimeException(dir.toString());
 			}
@@ -53,10 +52,6 @@ public class BST implements BSTInterface {
 			default:
 				throw new RuntimeException(dir.toString());
 			}
-		}
-
-		public String toString() {
-			return String.format("Node(key=%d)", key);
 		}
 	}
 
@@ -114,8 +109,9 @@ public class BST implements BSTInterface {
 	}
 
 	private final boolean validate(final Node parent, final Node child) {
-		return !parent.marked && !child.marked && ((parent.key < child.key && parent.right == child)
-				|| (parent.key > child.key && parent.left == child));
+		return !parent.marked && !child.marked &&
+				((parent.key < child.key && parent.right == child) ||
+				 (parent.key > child.key && parent.left == child));
 	}
 
 	public final boolean remove(final int key) {
@@ -190,7 +186,6 @@ public class BST implements BSTInterface {
 					}
 				}
 			}
-
 		}
 	}
 
@@ -220,7 +215,6 @@ public class BST implements BSTInterface {
 	private final long getKeysum(final Node node) {
 		if (node == null)
 			return 0;
-
 		return node.key + getKeysum(node.left) + getKeysum(node.right);
 	}
 }
